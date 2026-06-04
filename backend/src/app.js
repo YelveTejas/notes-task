@@ -7,7 +7,7 @@
 
 
  app.use(cors({
-     origin: 'http://localhost:3001',
+     origin: 'https://notes-dashboard-nu.vercel.app',
      methods: ['GET', 'POST', 'PUT', 'DELETE'],
      allowedHeaders: ['Content-Type', 'Authorization'],
  }))
