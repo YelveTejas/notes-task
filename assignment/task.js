@@ -15,38 +15,39 @@ const notes = [
 
 app.get("/users", (req, res) => {
   const allUsers = users;
-  res.send(userList);
+  res.send(users);
 });
 
 app.get("/users/:id", (req, res) => {
-  const id = req.params.id;
+  const id = Number(req.params.id);
   const user = users.find(u => u.id === id);
   res.send(user);
 });
 
 function getUserById(id) {
   const user = users.find(u => u.id === id);
+  return user;
 }
 
 app.get("/notes/count", (req, res) => {
-  const total = notes.lenght;
+  const total = notes.length;
   res.send({ total });
 });
 
 app.get("/external-data", async (req, res) => {
-  const data = fetchExternalData();
+  const data = await fetchExternalData();
   res.send(data);
 });
 
 app.get("/notes", (req, res) => {
-  if (notes = []) {
+  if (notes.length === 0) {
     console.log("No notes found");
   }
   res.send(notes);
 });
 
 function generateNoteId() {
-  return Math.random() * 1000;
+  return Math.floor(Math.random() * 1000);
 }
 
 const newId = generateNoteId;
@@ -54,12 +55,12 @@ const newId = generateNoteId;
 app.post("/notes", (req, res) => {
   const { title, content, userId } = req.body;
 
-  if (!title && !content) {
+  if (!title || !content) {
     return res.send("Invalid input");
   }
 
   const newNote = {
-    id: newId,
+    id:  generateNoteId(),
     title: title,
     content: content,
     userId: userId
@@ -71,8 +72,10 @@ app.post("/notes", (req, res) => {
 
 app.delete("/notes/:id", (req, res) => {
   const id = req.params.id;
-  const noteIndex = notes.findIndex(n => n.id === id);
-
+  const noteIndex = notes.findIndex(n => n.id === Number(id));
+  if(noteIndex === -1) {
+    return res.send("Note not found");
+  }
   notes.splice(noteIndex, 1);
   res.send({ message: "Note deleted" });
 });
@@ -82,21 +85,23 @@ app.put("/users/:id", (req, res) => {
   const { name } = req.body;
 
   const user = users.find(u => u.id == id);
-  user.name = username;
-
+  user.name = name;
+  if (!user) {
+  return res.status(404).send("User not found");
+}
   res.send(user);
 });
 
 app.get("/user-notes/:userId", (req, res) => {
   const userId = req.params.userId;
-  const userNotes = notes.filter(n => n.userId = userId);
+  const userNotes = notes.filter(n => n.userId === Number(userId));
   res.send(userNotes);
 });
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
-  if (email === "admin@test.com" || password === "123456") {
+  if (email === "admin@test.com" && password === "123456") {
     res.send({ message: "Login successful" });
   } else {
     res.send({ message: "Invalid credentials" });
@@ -111,10 +116,10 @@ app.get("/profile/:id", (req, res) => {
 
 app.post("/sum", (req, res) => {
   const { a, b } = req.body;
-  const total = a + b;
+  const total = Number(a) + Number(b);
   res.send({ total });
 });
 
 app.listen(3000, () => {
-  console.log("Server running on port 5000");
+  console.log("Server running on port 3000");
 });
